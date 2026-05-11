@@ -9,7 +9,7 @@ import {
 
 import { FaceLandmarker, FilesetResolver } from "@mediapipe/tasks-vision";
 
-export default function FaceExpression() {
+export default function FaceExpression({ onClick = () => {} }) {
   const videoRef = useRef(null);
 
   const [expression, setExpression] = useState("Detecting...");
@@ -165,6 +165,15 @@ export default function FaceExpression() {
     const result = detectExpression(blendshapeRef.current);
 
     setExpression(result);
+
+    return result;
+  };
+
+  const handleClick = () => {
+    const expression = handleDetectExpression();
+    console.log(expression);
+
+    onClick(expression);
   };
 
   return (
@@ -173,10 +182,10 @@ export default function FaceExpression() {
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        marginTop: "20px",
+        // marginTop: "20px",
       }}
     >
-      <h1 className="text-3xl underline mb-2">Face Expression Detection</h1>
+      <h1 className="text-5xl underline mb-2 font-bold">MooDifY</h1>
 
       <button
         className="px-4 py-2 bg-red-800 text-white text-xl m-2 rounded active:scale-95 cursor-pointer"
@@ -202,7 +211,7 @@ export default function FaceExpression() {
         autoPlay
         playsInline
         muted
-        width="300"
+        width="400"
         height="250"
         style={{
           borderRadius: "20px",
@@ -214,7 +223,7 @@ export default function FaceExpression() {
       <h2 className="text-2xl mt-2">{expression}</h2>
 
       <button
-        onClick={handleDetectExpression}
+        onClick={handleClick}
         className="px-4 py-2 bg-emerald-500 text-white mt-2 rounded active:scale-95 cursor-pointer text-xl font-semibold"
       >
         Detect Expression

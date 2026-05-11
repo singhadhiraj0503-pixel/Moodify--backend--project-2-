@@ -149,12 +149,12 @@ export const detectExpression = (blendshapes) => {
   const surprise = jawOpen + getScore("eyeWideLeft") + getScore("eyeWideRight");
 
   if (smile > 0.7) {
-    return "😊 Happy";
+    return "happy";
   } else if (surprise > 1.2) {
-    return "😲 Surprised";
+    return "surprised";
   } else if (browDown > 0.8) {
-    return "😠 Angry";
+    return "angry";
   } else {
-    return "😐 Neutral";
+    return "neutral";
   }
 };
