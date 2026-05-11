@@ -1,6 +1,8 @@
 const userModel = require("../models/user.model");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const blacklistModel = require("../models/blacklist.model");
+const redis = require("../config/cache");
 
 const registerUser = async (req, res) => {
   const { username, email, password } = req.body;
@@ -49,9 +51,11 @@ const registerUser = async (req, res) => {
 const loginUser = async (req, res) => {
   const { username, email, password } = req.body;
 
-  const user = await userModel.findOne({
-    $or: [{ email }, { username }],
-  });
+  const user = await userModel
+    .findOne({
+      $or: [{ email }, { username }],
+    })
+    .select("+password");
 
   if (!user) {
     return res.status(400).json({
@@ -78,7 +82,10 @@ const loginUser = async (req, res) => {
     },
   );
 
-  res.cookie("token", token);
+  res.cookie("token", token, {
+    httpOnly: false,
+    secure: false,
+  });
 
   res.status(200).json({
     message: "User Logged in Successfully",
@@ -90,4 +97,29 @@ const loginUser = async (req, res) => {
   });
 };
 
-module.exports = { registerUser, loginUser };
+const getMe = async (req, res) => {
+  const user = await userModel.findById(req.user.id);
+
+  res.status(200).json({
+    message: "User Fetched Successfully",
+    user,
+  });
+};
+
+const logoutUser = async (req, res) => {
+  const token = req.cookies.token;
+
+  res.clearCookie("token");
+
+  // await blacklistModel.create({
+  //   token,
+  // });
+
+  await redis.set(token, Date.now().toString(), "EX", 60 * 60);
+
+  res.status(200).json({
+    message: "Logout Successfully",
+  });
+};
+
+module.exports = { registerUser, loginUser, getMe, logoutUser };
